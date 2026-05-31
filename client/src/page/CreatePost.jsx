@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { preview } from '../assets';
@@ -28,7 +29,7 @@ const CreatePost = () => {
     if (form.prompt) {
       try {
         setGeneratingImg(true);
-        const response = await fetch('http://localhost:8080/api/v1/dalle', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/dalle`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -45,12 +46,12 @@ const CreatePost = () => {
           throw new Error(data.error || 'Something went wrong');
         }
       } catch (err) {
-        alert(err.message || err);
+        toast.error(err.message || err);
       } finally {
         setGeneratingImg(false);
       }
     } else {
-      alert('Please provide proper prompt');
+      toast.error('Please provide proper prompt');
     }
   };
 
@@ -60,7 +61,7 @@ const CreatePost = () => {
     if (form.prompt && form.photo) {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:8080/api/v1/post', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/post`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -68,16 +69,20 @@ const CreatePost = () => {
           body: JSON.stringify({ ...form }),
         });
 
-        await response.json();
-        alert('Success');
-        navigate('/');
+        const data = await response.json();
+        if (response.ok) {
+          toast.success('Success');
+          navigate('/');
+        } else {
+          throw new Error(data.message || 'Something went wrong');
+        }
       } catch (err) {
-        alert(err);
+        toast.error(err.message || err);
       } finally {
         setLoading(false);
       }
     } else {
-      alert('Please generate an image with proper details');
+      toast.error('Please generate an image with proper details');
     }
   };
 
