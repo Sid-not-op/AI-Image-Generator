@@ -22,7 +22,10 @@ router.route('/').post(async (req, res) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          inputs: prompt
+          inputs: prompt,
+          parameters: {
+            seed: Math.floor(Math.random() * 1000000)
+          }
         }),
       }
     );
